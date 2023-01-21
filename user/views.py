@@ -17,12 +17,11 @@ class JWTSignupView(APIView):
             token = RefreshToken.for_user(user)
             refresh = str(token)
             access = str(token.access_token)
-
-            return JsonResponse({'user': user,
-                                 'access': access,
-                                 'refresh': refresh
-
-                                 })
+            response = {'user': user,
+                         'access': access,
+                         'refresh': refresh
+                         }
+            return JsonResponse(response, status=200)
 
 
 class JWTLoginView(APIView):
@@ -38,18 +37,18 @@ class JWTLoginView(APIView):
                 'access': access,
                 'refresh': refresh
             }
-            response = JsonResponse(data,status=200)
-            #쿠키 설정
-            cookie = json.dumps(data)
-            response.set_cookie(key='jwt', value=cookie, httponly=False, samesite='None')
-            return response
+
+            return JsonResponse(data,status=200)
 
 
 
 class JWTLogOutView(APIView):
     def post(self, request):
-        response = JsonResponse({
+        response = {
             "message": "success"
-        })
-        response.delete_cookie('jwt')
-        return response
+        }
+        return JsonResponse(response, status=203)
+
+
+
+

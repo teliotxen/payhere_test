@@ -18,8 +18,9 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # FBV
-    path('item/', views.ItemListAPIView.as_view()),
-    path('item/<int:pk>/', views.ItemDetailAPIView.as_view()),
+
+    path('item/', views.ItemListAPIView.as_view(), name='item_list'),
+    path('item/<int:pk>/', views.ItemDetailAPIView.as_view(), name='item_detail'),
+    path('item/<int:pk>/share/', views.TokenGenerate.as_view(), name='item_share'),
 ]
 
