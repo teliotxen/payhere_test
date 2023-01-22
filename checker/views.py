@@ -97,8 +97,6 @@ class ShortenUrl(APIView):
         val = validate_token(request)
         if val == 402:
             return JsonResponse({'auth': 'expired'}, status=402)
-        elif val == 401:
-            return JsonResponse({'auth': 'shortenUrlexpired'}, status=401)
         else:
             _value = cache.get(key)
             if _value is None:
