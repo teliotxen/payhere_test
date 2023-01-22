@@ -9,6 +9,7 @@ class ItemSerializer(serializers.ModelSerializer):
             'user',
             'amount',
             'note',
+            'createdAt'
         ]
 
     def validate(self, data):

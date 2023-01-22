@@ -38,3 +38,4 @@ def validate_token(request):
         return status.HTTP_401_UNAUTHORIZED
     except jwt.InvalidTokenError:
         return status.HTTP_401_UNAUTHORIZED
+

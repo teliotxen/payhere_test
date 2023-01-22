@@ -1,4 +1,3 @@
-import json
 from django.http import JsonResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -17,11 +16,13 @@ class JWTSignupView(APIView):
             token = RefreshToken.for_user(user)
             refresh = str(token)
             access = str(token.access_token)
-            response = {'user': user,
+            response = {
                          'access': access,
                          'refresh': refresh
                          }
             return JsonResponse(response, status=200)
+        else:
+            return JsonResponse({'auth':'fail'}, status=400)
 
 
 class JWTLoginView(APIView):
@@ -39,6 +40,8 @@ class JWTLoginView(APIView):
             }
 
             return JsonResponse(data,status=200)
+        else:
+            return JsonResponse({'auth':'fail'}, status=400)
 
 
 

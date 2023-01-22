@@ -6,9 +6,9 @@ from .models import Item
 from .serializers import ItemSerializer
 from django.shortcuts import get_object_or_404
 from .authenticate import validate_token_detail, validate_token
-import jwt
-from payhere_test.settings import SECRET_KEY
-import time
+import string
+import random
+from django.core.cache import cache
 
 
 class ItemListAPIView(APIView):
@@ -16,6 +16,8 @@ class ItemListAPIView(APIView):
         val = validate_token(request)
         if val == 402:
             return JsonResponse({'auth': 'expired'}, status=402)
+        elif val == 401:
+            return JsonResponse({'auth': 'unauthorized'}, status=401)
         else:
             serializer = ItemSerializer(Item.objects.filter(user=val), many=True)
             return Response(serializer.data)
@@ -24,6 +26,8 @@ class ItemListAPIView(APIView):
         val = validate_token(request)
         if val == 402:
             return JsonResponse({'auth': 'expired'}, status=402)
+        elif val == 401:
+            return JsonResponse({'auth': 'unauthorized'}, status=401)
         else:
             serializer = ItemSerializer(data=request.data)
             if serializer.is_valid():
@@ -68,8 +72,7 @@ class ItemDetailAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TokenGenerate(APIView):
-
+class ShortenUrlGenerator(APIView):
     def get(self, request, pk):
         val = validate_token(request)
         if val == 402:
@@ -77,10 +80,30 @@ class TokenGenerate(APIView):
         elif val == 401:
             return JsonResponse({'auth': 'unauthorized'}, status=401)
         else:
-            key = {
-                'pk': pk,
-                'user': val,
-                'exp': time.time() + 300
-                }
-            encode_jwt = jwt.encode(key, SECRET_KEY , algorithm='HS256')
-            return JsonResponse({'sharedToken':encode_jwt},status=200)
+            letters_set = string.ascii_letters
+            random_list = random.sample(letters_set, 10)
+            result = ''.join(random_list)
+
+            if not cache.get(result):
+                _key = result
+
+            _value = pk
+            cache.set(_key,_value, timeout=30*30)
+            return JsonResponse({'shortenUrl':_key},status=200)
+
+
+class ShortenUrl(APIView):
+    def get(self, request, key):
+        val = validate_token(request)
+        if val == 402:
+            return JsonResponse({'auth': 'expired'}, status=402)
+        elif val == 401:
+            return JsonResponse({'auth': 'shortenUrlexpired'}, status=401)
+        else:
+            _value = cache.get(key)
+            if _value is None:
+                return JsonResponse({'shortenUrl':_value},status=422)
+            else:
+                item = Item.objects.get(pk=_value)
+                serializer = ItemSerializer(item)
+                return Response(serializer.data)

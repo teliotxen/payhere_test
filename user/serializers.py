@@ -21,7 +21,7 @@ class JWTSignupSerializer(serializers.ModelSerializer):
         fields = ['email', 'password']
 
     def save(self, request):
-        user = super().save()
+        user = User()
         user.email = self.validated_data['email']
         user.set_password(self.validated_data['password'])
         user.save()
